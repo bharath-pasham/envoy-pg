@@ -1,0 +1,71 @@
+---
+# HTTPRoute for Service B - defines how traffic is routed to Service B
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: service-b-route
+  namespace: default
+  labels:
+    app.kubernetes.io/name: service-b
+    app.kubernetes.io/component: route
+    service: service-b
+  annotations:
+    description: "Routes traffic to Service B"
+spec:
+  parentRefs:
+  - name: demo-gateway
+    namespace: default
+    sectionName: http
+  hostnames:
+  - "demo.local"
+  - "service-b.demo.local"
+  - "api.demo.local"
+  rules:
+  # Rule 1: Main API path
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/service-b
+    - path:
+        type: Exact
+        value: /service-b
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Service
+          value: service-b
+        - name: X-Gateway-Time
+          value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
+    backendRefs:
+    - name: service-b
+      port: 8080
+      weight: 100
+  # Rule 2: Health check endpoint
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /health/service-b
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /health
+    backendRefs:
+    - name: service-b
+      port: 8080
+  # Rule 3: Slow endpoint for testing timeouts
+  - matches:
+    - path:
+        type: Exact
+        value: /test/slow
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Test-Type
+          value: slow-endpoint
+    backendRefs:
+    - name: service-b
+      port: 8080

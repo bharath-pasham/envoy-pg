@@ -1,0 +1,42 @@
+---
+# Gateway is the actual gateway instance that will handle incoming traffic
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: demo-gateway
+  namespace: default
+  labels:
+    app.kubernetes.io/name: demo-gateway
+    app.kubernetes.io/component: gateway
+    environment: demo
+  annotations:
+    gateway.envoyproxy.io/description: "Main gateway for demo services"
+spec:
+  gatewayClassName: envoy-gateway-class
+  listeners:
+  # HTTP listener on port 80
+  - name: http
+    protocol: HTTP
+    port: 80
+    hostname: "*.demo.local"  # Wildcard for all subdomains
+    allowedRoutes:
+      namespaces:
+        from: Same  # Only routes from same namespace
+      kinds:
+      - kind: HTTPRoute
+        group: gateway.networking.k8s.io
+  # You can add HTTPS listener later
+  # - name: https
+  #   protocol: HTTPS
+  #   port: 443
+  #   hostname: "*.demo.local"
+  #   tls:
+  #     mode: Terminate
+  #     certificateRefs:
+  #     - name: demo-tls-cert
+  #   allowedRoutes:
+  #     namespaces:
+  #       from: Same
+  #     kinds:
+  #     - kind: HTTPRoute
+  #       group: gateway.networking.k8s.io

@@ -1,0 +1,76 @@
+---
+# BackendTrafficPolicy for rate limiting
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: rate-limit-policy
+  namespace: default
+  labels:
+    app.kubernetes.io/name: rate-limiter
+    app.kubernetes.io/component: traffic-policy
+    purpose: rate-limiting
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: service-a-route
+  rateLimit:
+    type: Global  # or Local
+    global:
+      rules:
+      # Rule 1: General rate limit - 100 requests per minute
+      - clientSelectors:
+        - {}  # Apply to all clients
+        limit:
+          requests: 100
+          unit: Minute
+      # Rule 2: Strict limit for specific path - 10 requests per minute
+      - clientSelectors:
+        - sourceCIDR:
+            value: 0.0.0.0/0  # All IPs
+        - headers:
+          - name: ":path"
+            value: "/api/service-a/limited"
+            type: Exact
+        limit:
+          requests: 10
+          unit: Minute
+      # Rule 3: Per-IP rate limiting
+      - clientSelectors:
+        - headers:
+          - name: "X-Forwarded-For"
+            type: Distinct
+        limit:
+          requests: 50
+          unit: Minute
+---
+# Alternative: Local rate limiting (per Envoy instance)
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: local-rate-limit-policy
+  namespace: default
+  labels:
+    app.kubernetes.io/name: local-rate-limiter
+    app.kubernetes.io/component: traffic-policy
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: service-b-route
+  rateLimit:
+    type: Local
+    local:
+      rules:
+      # Simple local rate limit - 1000 requests per second
+      - limit:
+          requests: 1000
+          unit: Second
+        responseStatusCode: 429  # Too Many Requests
+        responseHeadersToAdd:
+        - name: X-Rate-Limit-Limit
+          value: "1000"
+        - name: X-Rate-Limit-Remaining
+          value: "%REMAINING%"
+        - name: X-Rate-Limit-Reset
+          value: "%RESET%"

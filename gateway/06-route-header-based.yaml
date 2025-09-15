@@ -1,0 +1,98 @@
+---
+# HTTPRoute for header-based routing decisions
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: header-based-route
+  namespace: default
+  labels:
+    app.kubernetes.io/name: header-router
+    app.kubernetes.io/component: route
+    purpose: header-based-routing
+  annotations:
+    description: "Routes traffic based on request headers"
+spec:
+  parentRefs:
+  - name: demo-gateway
+    namespace: default
+  hostnames:
+  - "demo.local"
+  - "api.demo.local"
+  rules:
+  # Rule 1: Route based on X-Version header
+  - matches:
+    - headers:
+      - name: X-Version
+        value: v1
+      path:
+        type: PathPrefix
+        value: /api
+    backendRefs:
+    - name: service-a
+      port: 8080
+  - matches:
+    - headers:
+      - name: X-Version
+        value: v2
+      path:
+        type: PathPrefix
+        value: /api
+    backendRefs:
+    - name: service-b
+      port: 8080
+  # Rule 2: Route based on User-Agent (mobile vs desktop)
+  - matches:
+    - headers:
+      - name: User-Agent
+        value: Mobile
+        type: RegularExpression
+      path:
+        type: PathPrefix
+        value: /app
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Client-Type
+          value: mobile
+    backendRefs:
+    - name: service-a  # Mobile traffic to service A
+      port: 8080
+  - matches:
+    - headers:
+      - name: User-Agent
+        value: ".*"
+        type: RegularExpression
+      path:
+        type: PathPrefix
+        value: /app
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Client-Type
+          value: desktop
+    backendRefs:
+    - name: service-b  # Desktop traffic to service B
+      port: 8080
+  # Rule 3: A/B testing based on custom header
+  - matches:
+    - headers:
+      - name: X-AB-Test
+        value: group-a
+      path:
+        type: PathPrefix
+        value: /experiment
+    backendRefs:
+    - name: service-a
+      port: 8080
+  - matches:
+    - headers:
+      - name: X-AB-Test
+        value: group-b
+      path:
+        type: PathPrefix
+        value: /experiment
+    backendRefs:
+    - name: service-b
+      port: 8080

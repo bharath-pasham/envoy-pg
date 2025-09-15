@@ -1,0 +1,13 @@
+---
+# GatewayClass defines the class of Gateways that will be managed by Envoy Gateway
+# This is like a "driver" that tells Kubernetes which controller will handle the Gateway
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy-gateway-class
+  labels:
+    app.kubernetes.io/name: envoy-gateway
+    app.kubernetes.io/component: gateway-class
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  description: "Envoy Gateway controller for demo environment"

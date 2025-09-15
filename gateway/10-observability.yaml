@@ -1,0 +1,97 @@
+---
+# EnvoyProxy configuration for observability
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: custom-proxy-config
+  namespace: envoy-gateway-system
+  labels:
+    app.kubernetes.io/name: envoy-proxy
+    app.kubernetes.io/component: observability
+spec:
+  telemetry:
+    metrics:
+      prometheus:
+        disable: false
+    accessLog:
+      disable: false
+      settings:
+      - format:
+          type: Text
+          text: |
+            [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%"
+            %RESPONSE_CODE% %RESPONSE_FLAGS% %BYTES_RECEIVED% %BYTES_SENT%
+            "%DOWNSTREAM_REMOTE_ADDRESS%" "%REQ(X-FORWARDED-FOR)%" "%REQ(USER-AGENT)%"
+            "%REQ(X-REQUEST-ID)%" "%REQ(:AUTHORITY)%" "%UPSTREAM_HOST%"
+        sinks:
+        - type: File
+          file:
+            path: /dev/stdout
+      - format:
+          type: JSON
+          json:
+            timestamp: "%START_TIME%"
+            method: "%REQ(:METHOD)%"
+            path: "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
+            protocol: "%PROTOCOL%"
+            response_code: "%RESPONSE_CODE%"
+            response_flags: "%RESPONSE_FLAGS%"
+            bytes_received: "%BYTES_RECEIVED%"
+            bytes_sent: "%BYTES_SENT%"
+            duration: "%DURATION%"
+            upstream_host: "%UPSTREAM_HOST%"
+            user_agent: "%REQ(USER-AGENT)%"
+            request_id: "%REQ(X-REQUEST-ID)%"
+            authority: "%REQ(:AUTHORITY)%"
+            downstream_remote_address: "%DOWNSTREAM_REMOTE_ADDRESS%"
+        sinks:
+        - type: File
+          file:
+            path: /var/log/envoy/access.log
+---
+# Update GatewayClass to use custom EnvoyProxy config
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy-gateway-class-with-observability
+  labels:
+    app.kubernetes.io/name: envoy-gateway
+    app.kubernetes.io/component: gateway-class
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: custom-proxy-config
+    namespace: envoy-gateway-system
+---
+# ConfigMap for custom Envoy metrics
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-metrics-config
+  namespace: envoy-gateway-system
+  labels:
+    app.kubernetes.io/name: envoy-metrics
+    app.kubernetes.io/component: observability
+data:
+  stats.yaml: |
+    stats_sinks:
+    - name: envoy.stat_sinks.metrics_service
+      typed_config:
+        "@type": type.googleapis.com/envoy.config.metrics.v3.MetricsServiceConfig
+        grpc_service:
+          envoy_grpc:
+            cluster_name: metrics-cluster
+    stats_config:
+      stats_matches:
+      - name: "http_inbound"
+        match:
+          prefix: "http.inbound"
+        actions:
+        - name: "reject"
+          action:
+            "@type": type.googleapis.com/envoy.config.core.v3.HeaderValueOption
+            header:
+              key: "x-envoy-stats-rejected"
+              value: "true"
