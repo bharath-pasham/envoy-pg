@@ -1,0 +1,139 @@
+{
+  "dashboard": {
+    "title": "Envoy Gateway Metrics",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Request Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(envoy_http_downstream_rq_total[5m])) by (envoy_http_conn_manager_prefix)",
+            "legendFormat": "{{envoy_http_conn_manager_prefix}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Response Status Codes",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(envoy_http_downstream_rq_xx[5m])) by (envoy_response_code_class)",
+            "legendFormat": "{{envoy_response_code_class}}xx",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "P50/P90/P99 Latency",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(envoy_http_downstream_rq_time_bucket[5m])) by (le))",
+            "legendFormat": "P50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.9, sum(rate(envoy_http_downstream_rq_time_bucket[5m])) by (le))",
+            "legendFormat": "P90",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(envoy_http_downstream_rq_time_bucket[5m])) by (le))",
+            "legendFormat": "P99",
+            "refId": "C"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Active Connections",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(envoy_http_downstream_cx_active)",
+            "legendFormat": "Active Connections",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Upstream Health",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(envoy_cluster_membership_healthy)",
+            "legendFormat": "Healthy",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Rate Limited Requests",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(rate(envoy_http_local_rate_limit_rate_limited[5m]))",
+            "legendFormat": "Rate Limited/sec",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Circuit Breaker Trips",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(envoy_cluster_circuit_breakers_default_rq_open)",
+            "legendFormat": "Open Circuits",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Retry Attempts",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(rate(envoy_cluster_retry_upstream_rq[5m]))",
+            "legendFormat": "Retries/sec",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Bytes In/Out",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(rate(envoy_http_downstream_cx_rx_bytes_total[5m]))",
+            "legendFormat": "Bytes In",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(envoy_http_downstream_cx_tx_bytes_total[5m]))",
+            "legendFormat": "Bytes Out",
+            "refId": "B"
+          }
+        ]
+      }
+    ]
+  }
+}

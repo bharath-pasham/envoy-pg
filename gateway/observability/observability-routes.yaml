@@ -1,0 +1,124 @@
+---
+# HTTPRoute with custom observability headers
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: observable-routes
+  namespace: default
+  annotations:
+    observability.envoyproxy.io/metrics: "true"
+    observability.envoyproxy.io/tracing: "true"
+spec:
+  parentRefs:
+  - name: demo-gateway  # Can use either gateway
+    namespace: default
+  hostnames:
+  - "metrics.demo.local"
+  - "demo.local"
+  rules:
+  
+  # Add tracing headers to all requests
+  - name: "traced-requests"
+    matches:
+    - path:
+        type: PathPrefix
+        value: /api
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Request-Start
+          value: "%START_TIME%"
+        - name: X-B3-TraceId
+          value: "%REQ(X-B3-TRACEID)%"
+        - name: X-B3-SpanId  
+          value: "%REQ(X-B3-SPANID)%"
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: X-Response-Time
+          value: "%DURATION%"
+        - name: X-Upstream-Service-Time
+          value: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
+        - name: X-Route-Name
+          value: "%ROUTE_NAME%"
+    backendRefs:
+    - name: service-a
+      port: 8080
+      weight: 50
+    - name: service-b
+      port: 8080
+      weight: 50
+
+  # Health check endpoint for monitoring
+  - name: "health-check"
+    matches:
+    - path:
+        type: Exact
+        value: /healthz
+    filters:
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: X-Health-Check
+          value: "gateway"
+    backendRefs:
+    - name: service-a
+      port: 8080
+  
+  # Metrics endpoint (simulated)
+  - name: "metrics-endpoint"
+    matches:
+    - path:
+        type: Exact
+        value: /metrics
+    filters:
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: Content-Type
+          value: "text/plain"
+        - name: X-Metrics-Source
+          value: "envoy-gateway"
+    backendRefs:
+    - name: service-a
+      port: 8080
+
+---
+# BackendTrafficPolicy with detailed observability
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy  
+metadata:
+  name: observability-backend-policy
+  namespace: default
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: observable-routes
+  healthCheck:
+    active:
+      type: HTTP
+      interval: 10s
+      timeout: 3s
+      unhealthyThreshold: 3
+      healthyThreshold: 2
+      http:
+        path: /health
+        expectedStatuses:
+        - 200
+  timeout:
+    tcp:
+      connectTimeout: 5s
+    http:
+      requestTimeout: 30s
+  retry:
+    numRetries: 2
+    retryOn:
+      httpStatusCodes:
+        - 500
+        - 502
+        - 503
+        - 504
+    perRetryPolicy:
+      timeout: 10s
