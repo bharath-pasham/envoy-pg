@@ -72,18 +72,6 @@ spec:
     - name: service-a
       port: 8080
       weight: 90
-      filters:
-      - type: ResponseHeaderModifier
-        responseHeaderModifier:
-          add:
-          - name: X-Version
-            value: "stable"
     - name: service-b
       port: 8080
       weight: 10
-      filters:
-      - type: ResponseHeaderModifier
-        responseHeaderModifier:
-          add:
-          - name: X-Version
-            value: "canary"

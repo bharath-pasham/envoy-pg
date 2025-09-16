@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-a-canary
+  namespace: default
+spec:
+  replicas: 1  # Start with fewer replicas for canary
+  selector:
+    matchLabels:
+      app: service-a
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: service-a
+        version: v2
+    spec:
+      containers:
+      - name: service-a
+        image: service-a:v2  # New image version
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SERVICE_B_URL
+          value: "http://service-b:8080"
+        - name: SERVER_PORT
+          value: "8080"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

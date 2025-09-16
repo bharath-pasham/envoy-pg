@@ -1,5 +1,5 @@
 ---
-# BackendTrafficPolicy for rate limiting
+# BackendTrafficPolicy for rate limiting - Service A
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
@@ -43,34 +43,3 @@ spec:
         limit:
           requests: 50
           unit: Minute
----
-# Alternative: Local rate limiting (per Envoy instance)
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: BackendTrafficPolicy
-metadata:
-  name: local-rate-limit-policy
-  namespace: default
-  labels:
-    app.kubernetes.io/name: local-rate-limiter
-    app.kubernetes.io/component: traffic-policy
-spec:
-  targetRef:
-    group: gateway.networking.k8s.io
-    kind: HTTPRoute
-    name: service-b-route
-  rateLimit:
-    type: Local
-    local:
-      rules:
-      # Simple local rate limit - 1000 requests per second
-      - limit:
-          requests: 1000
-          unit: Second
-        responseStatusCode: 429  # Too Many Requests
-        responseHeadersToAdd:
-        - name: X-Rate-Limit-Limit
-          value: "1000"
-        - name: X-Rate-Limit-Remaining
-          value: "%REMAINING%"
-        - name: X-Rate-Limit-Reset
-          value: "%RESET%"

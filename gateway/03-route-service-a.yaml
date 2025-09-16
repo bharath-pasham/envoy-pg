@@ -21,7 +21,40 @@ spec:
   - "service-a.demo.local"
   - "api.demo.local"  # Additional hostname for API access
   rules:
-  # Rule 1: Main API path
+  # Rule 1: Force canary traffic when X-Canary header is present
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/service-a
+      headers:
+      - name: X-Canary
+        value: "true"
+    - path:
+        type: Exact
+        value: /service-a
+      headers:
+      - name: X-Canary
+        value: "true"
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Service
+          value: service-a
+        - name: X-Gateway-Time
+          value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: X-Version
+          value: "canary"
+        - name: X-Pod-Type
+          value: "v2"
+    backendRefs:
+    - name: service-a-canary
+      port: 8080
+      weight: 100
+  # Rule 2: Main API path with weighted distribution (no header)
   - matches:
     - path:
         type: PathPrefix
@@ -37,10 +70,18 @@ spec:
           value: service-a
         - name: X-Gateway-Time
           value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: X-Version
+          value: "weighted"
     backendRefs:
     - name: service-a
       port: 8080
-      weight: 100
+      weight: 80
+    - name: service-a-canary
+      port: 8080
+      weight: 20
   # Rule 2: Health check endpoint
   - matches:
     - path:
