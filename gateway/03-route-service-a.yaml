@@ -20,6 +20,7 @@ spec:
   - "demo.local"
   - "service-a.demo.local"
   - "api.demo.local"  # Additional hostname for API access
+  - "*.demo.local"  # Wildcard hostname for subdomains
   rules:
   # Rule 1: Force canary traffic when X-Canary header is present
   - matches:

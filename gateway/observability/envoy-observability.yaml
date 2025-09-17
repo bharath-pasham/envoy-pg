@@ -10,14 +10,6 @@ spec:
     metrics:
       prometheus:
         disable: false
-        # Enable additional stats
-      stats:
-        - name: "http.inbound"
-          enable: true
-        - name: "cluster.outbound"
-          enable: true
-        - name: "tcp.inbound"
-          enable: true
     accessLog:
       disable: false
       settings:
@@ -44,9 +36,6 @@ spec:
             downstream_remote_address: "%DOWNSTREAM_REMOTE_ADDRESS%"
             downstream_local_address: "%DOWNSTREAM_LOCAL_ADDRESS%"
             route_name: "%ROUTE_NAME%"
-            response_headers: 
-              x_version: "%RESP(X-VERSION)%"
-              x_service: "%RESP(X-SERVICE)%"
         sinks:
         - type: File
           file:

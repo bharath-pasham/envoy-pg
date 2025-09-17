@@ -12,7 +12,7 @@ metadata:
   annotations:
     gateway.envoyproxy.io/description: "Main gateway for demo services"
 spec:
-  gatewayClassName: envoy-gateway-class
+  gatewayClassName: observability-gateway-class
   listeners:
   # HTTP listener on port 80
   - name: http

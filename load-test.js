@@ -1,9 +1,9 @@
 import http from 'k6/http';
-import { check } from 'k6';
+import { check, sleep } from 'k6';
 
 export let options = {
   vus: 2, // 10 virtual users
-  duration: '10s', // Run for 30 seconds
+  duration: '5m', // Run for 5 minutes
 };
 
 export default function () {
@@ -37,4 +37,7 @@ export default function () {
   check(response4, {
     'service-a canary status is 200': (r) => r.status === 200,
   });
+
+  // Wait 10 seconds before next iteration
+  sleep(10);
 }
