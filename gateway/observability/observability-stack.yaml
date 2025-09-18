@@ -68,7 +68,7 @@ data:
       relabel_configs:
       - source_labels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_name]
         action: keep
-        regex: (demo-gateway|observable-gateway)
+        regex: demo-gateway
       - source_labels: [__meta_kubernetes_pod_container_port_number]
         action: keep
         regex: "19001"
@@ -88,7 +88,7 @@ data:
       relabel_configs:
       - source_labels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_name]
         action: keep
-        regex: (demo-gateway|observable-gateway)
+        regex: demo-gateway
       - source_labels: [__meta_kubernetes_pod_container_port_name]
         action: keep
         regex: "metrics"

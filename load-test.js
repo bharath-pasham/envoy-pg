@@ -3,11 +3,11 @@ import { check, sleep } from 'k6';
 
 export let options = {
   vus: 2, // 10 virtual users
-  duration: '5m', // Run for 5 minutes
+  duration: '2m', // Run for 5 minutes
 };
 
 export default function () {
-  const baseUrl = 'http://localhost:8888';
+  const baseUrl = 'http://localhost';
   const headers = {
     'Host': 'api.demo.local',
   };
@@ -39,5 +39,5 @@ export default function () {
   });
 
   // Wait 10 seconds before next iteration
-  sleep(10);
+  sleep(5);
 }
