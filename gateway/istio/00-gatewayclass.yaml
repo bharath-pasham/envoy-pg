@@ -1,0 +1,10 @@
+## Istio GatewayClass (only needed if cluster does not already have one)
+# Safe to apply; if an existing GatewayClass named "istio" is present with the
+# same controllerName this is a no-op. Adjust name if your platform already
+# ships a different default.
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: istio
+spec:
+  controllerName: istio.io/gateway-controller

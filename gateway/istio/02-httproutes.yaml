@@ -1,0 +1,112 @@
+# HTTPRoutes for Kubernetes Gateway API approach (replaces VirtualServices)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: service-a-route
+  namespace: default
+spec:
+  parentRefs:
+  - name: istio-demo-gateway
+    namespace: default
+  hostnames:
+  - "demo.local"
+  - "service-a.demo.local"
+  - "api.demo.local"
+  - "*.demo.local"
+  rules:
+  # Canary routing with X-Canary header for API paths
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/service-a
+      headers:
+      - name: X-Canary
+        value: "true"
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Service
+          value: service-a
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: X-Version
+          value: canary
+    backendRefs:
+    - name: service-a-canary
+      port: 8080
+      weight: 100
+  # Weighted routing for API and root paths (80/20 split)
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/service-a
+    - path:
+        type: Exact
+        value: /
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Service
+          value: service-a
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: X-Version
+          value: weighted
+    backendRefs:
+    - name: service-a
+      port: 8080
+      weight: 80
+    - name: service-a-canary
+      port: 8080
+      weight: 20
+  # Health check endpoint
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /health/service-a
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /health
+    backendRefs:
+    - name: service-a
+      port: 8080
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: service-b-route
+  namespace: default
+spec:
+  parentRefs:
+  - name: istio-demo-gateway
+    namespace: default
+  hostnames:
+  - "demo.local"
+  - "service-b.demo.local"
+  - "api.demo.local"
+  - "*.demo.local"
+  rules:
+  # API and root path routing for service-b
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/service-b
+    - path:
+        type: Exact
+        value: /
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Service
+          value: service-b
+    backendRefs:
+    - name: service-b
+      port: 8080

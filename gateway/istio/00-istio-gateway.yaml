@@ -1,0 +1,17 @@
+# Traditional Istio Gateway (not K8s Gateway API) for VirtualService references
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: istio-demo-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "demo.local"
+    - "*.demo.local"

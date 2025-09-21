@@ -9,7 +9,7 @@ spec:
   - "demo.local"
   - "service-a.demo.local"
   gateways:
-  - istio-demo-gateway.default.svc.cluster.local # K8s Gateway translated internally
+  - istio-demo-gateway  # Gateway (same namespace) – corrected reference format
   http:
   - name: service-a-canary-header
     match:
@@ -85,7 +85,7 @@ spec:
   - "demo.local"
   - "service-b.demo.local"
   gateways:
-  - istio-demo-gateway.default.svc.cluster.local
+  - istio-demo-gateway  # Corrected reference
   http:
   - match:
     - uri:
