@@ -1,0 +1,74 @@
+NAMESPACE              NAME                                                       READY   STATUS      RESTARTS        AGE
+default                pod/service-a-799bb79f86-jgfh7                             1/1     Running     0               34h
+default                pod/service-a-799bb79f86-thhzm                             1/1     Running     0               34h
+default                pod/service-a-canary-658dc8f5c5-kx67t                      1/1     Running     0               34h
+default                pod/service-b-65dbc4c8f9-pjvks                             1/1     Running     0               6d4h
+default                pod/service-b-65dbc4c8f9-z4tmm                             1/1     Running     0               6d4h
+envoy-gateway-system   pod/envoy-default-demo-gateway-88752a31-66ff89b6c7-54qd9   2/2     Running     0               4d5h
+envoy-gateway-system   pod/envoy-gateway-ccbc99d8-7swp4                           1/1     Running     0               34h
+ingress-nginx          pod/ingress-nginx-admission-create-tz757                   0/1     Completed   0               6d7h
+ingress-nginx          pod/ingress-nginx-admission-patch-z9kqj                    0/1     Completed   0               6d7h
+ingress-nginx          pod/ingress-nginx-controller-56d7c84fd4-b6qfx              1/1     Running     0               6d7h
+kube-system            pod/coredns-668d6bf9bc-2tcmr                               1/1     Running     0               6d7h
+kube-system            pod/etcd-minikube                                          1/1     Running     0               6d7h
+kube-system            pod/kube-apiserver-minikube                                1/1     Running     0               6d7h
+kube-system            pod/kube-controller-manager-minikube                       1/1     Running     0               6d7h
+kube-system            pod/kube-proxy-9xc2f                                       1/1     Running     0               6d7h
+kube-system            pod/kube-scheduler-minikube                                1/1     Running     0               6d7h
+kube-system            pod/storage-provisioner                                    1/1     Running     2 (5d15h ago)   6d7h
+observability          pod/grafana-679d99bb78-6hf9r                               1/1     Running     0               5d8h
+observability          pod/prometheus-55d4b988f9-fxdl6                            1/1     Running     0               5d5h
+
+NAMESPACE              NAME                                          TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+default                service/kubernetes                            ClusterIP      10.96.0.1        <none>        443/TCP                      6d7h
+default                service/service-a                             ClusterIP      10.104.122.37    <none>        8080/TCP                     6d5h
+default                service/service-a-canary                      ClusterIP      10.96.8.23       <none>        8080/TCP                     5d11h
+default                service/service-b                             ClusterIP      10.103.38.14     <none>        8080/TCP                     6d5h
+envoy-gateway-system   service/envoy-default-demo-gateway-88752a31   LoadBalancer   10.108.37.85     127.0.0.1     80:32356/TCP                 6d3h
+envoy-gateway-system   service/envoy-gateway                         ClusterIP      10.101.195.115   <none>        18000/TCP,18001/TCP          6d7h
+envoy-gateway-system   service/envoy-gateway-metrics-service         ClusterIP      10.96.209.187    <none>        19001/TCP                    6d7h
+ingress-nginx          service/ingress-nginx-controller              NodePort       10.107.189.103   <none>        80:31834/TCP,443:30141/TCP   6d7h
+ingress-nginx          service/ingress-nginx-controller-admission    ClusterIP      10.97.138.168    <none>        443/TCP                      6d7h
+kube-system            service/kube-dns                              ClusterIP      10.96.0.10       <none>        53/UDP,53/TCP,9153/TCP       6d7h
+observability          service/grafana                               ClusterIP      10.102.81.185    <none>        3000/TCP                     5d8h
+observability          service/prometheus                            ClusterIP      10.110.28.48     <none>        9090/TCP                     5d8h
+
+NAMESPACE     NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kube-system   daemonset.apps/kube-proxy   1         1         1       1            1           kubernetes.io/os=linux   6d7h
+
+NAMESPACE              NAME                                                  READY   UP-TO-DATE   AVAILABLE   AGE
+default                deployment.apps/service-a                             2/2     2            2           6d5h
+default                deployment.apps/service-a-canary                      1/1     1            1           5d11h
+default                deployment.apps/service-b                             2/2     2            2           6d5h
+envoy-gateway-system   deployment.apps/envoy-default-demo-gateway-88752a31   1/1     1            1           6d3h
+envoy-gateway-system   deployment.apps/envoy-gateway                         1/1     1            1           6d7h
+ingress-nginx          deployment.apps/ingress-nginx-controller              1/1     1            1           6d7h
+kube-system            deployment.apps/coredns                               1/1     1            1           6d7h
+observability          deployment.apps/grafana                               1/1     1            1           5d8h
+observability          deployment.apps/prometheus                            1/1     1            1           5d8h
+
+NAMESPACE              NAME                                                             DESIRED   CURRENT   READY   AGE
+default                replicaset.apps/service-a-6b6fbd5d47                             0         0         0       6d5h
+default                replicaset.apps/service-a-799bb79f86                             2         2         2       6d4h
+default                replicaset.apps/service-a-canary-658dc8f5c5                      1         1         1       5d11h
+default                replicaset.apps/service-b-65dbc4c8f9                             2         2         2       6d4h
+default                replicaset.apps/service-b-679ccd4b59                             0         0         0       6d5h
+envoy-gateway-system   replicaset.apps/envoy-default-demo-gateway-88752a31-58d75f776f   0         0         0       6d3h
+envoy-gateway-system   replicaset.apps/envoy-default-demo-gateway-88752a31-66ff89b6c7   1         1         1       4d5h
+envoy-gateway-system   replicaset.apps/envoy-gateway-78b66b68dc                         0         0         0       6d7h
+envoy-gateway-system   replicaset.apps/envoy-gateway-ccbc99d8                           1         1         1       34h
+ingress-nginx          replicaset.apps/ingress-nginx-controller-56d7c84fd4              1         1         1       6d7h
+kube-system            replicaset.apps/coredns-668d6bf9bc                               1         1         1       6d7h
+observability          replicaset.apps/grafana-679d99bb78                               1         1         1       5d8h
+observability          replicaset.apps/prometheus-55d4b988f9                            1         1         1       5d5h
+observability          replicaset.apps/prometheus-568c4f75b5                            0         0         0       5d6h
+observability          replicaset.apps/prometheus-684db7bcf                             0         0         0       5d6h
+observability          replicaset.apps/prometheus-7467794894                            0         0         0       5d6h
+observability          replicaset.apps/prometheus-795cd6d4c5                            0         0         0       5d6h
+observability          replicaset.apps/prometheus-79c6857c65                            0         0         0       5d6h
+observability          replicaset.apps/prometheus-7f65b94974                            0         0         0       5d6h
+observability          replicaset.apps/prometheus-7ff676d85                             0         0         0       5d8h
+
+NAMESPACE       NAME                                       STATUS     COMPLETIONS   DURATION   AGE
+ingress-nginx   job.batch/ingress-nginx-admission-create   Complete   1/1           8s         6d7h
+ingress-nginx   job.batch/ingress-nginx-admission-patch    Complete   1/1           8s         6d7h

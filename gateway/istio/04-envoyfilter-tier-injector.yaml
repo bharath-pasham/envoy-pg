@@ -1,0 +1,40 @@
+# EnvoyFilter implementing x-customer-tier header injection at ingress gateway
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: request-tier-injector
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: envoy.filters.network.http_connection_manager
+            subFilter:
+              name: envoy.filters.http.router
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.lua
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+          inline_code: |
+            function envoy_on_request(handle)
+              local path = handle:headers():get(":path") or "/"
+              local tier = "standard"
+              if string.find(path, "/api/premium") then
+                tier = "premium"
+              elseif string.find(path, "/api/enterprise") then
+                tier = "enterprise"
+              end
+              if not handle:headers():get("x-customer-tier") then
+                handle:headers():add("x-customer-tier", tier)
+              end
+              handle:logInfo("[tier-injector] tier=" .. tier .. " path=" .. path)
+            end

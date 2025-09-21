@@ -1,0 +1,56 @@
+# DestinationRules for service-a and service-b implementing connection pools & outlier detection
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: service-a
+  namespace: default
+spec:
+  host: service-a.default.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        connectTimeout: 10s
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 100
+        maxRetries: 3
+    outlierDetection:
+      consecutive5xx: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: service-b
+  namespace: default
+spec:
+  host: service-b.default.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        connectTimeout: 5s
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 100
+        maxRetries: 2
+    outlierDetection:
+      consecutive5xx: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    # Active health checks (limited support; may require meshConfig enablement)
+    # healthCheck:
+    #   httpHealthCheck:
+    #     path: /health
+    #   interval: 10s
+    #   timeout: 3s
+    #   healthyThreshold: 2
+    #   unhealthyThreshold: 3
