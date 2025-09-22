@@ -49,3 +49,4 @@ spec:
                   "upstream_local_address": "%UPSTREAM_LOCAL_ADDRESS%"
                   "upstream_service_time": "%REQ(x-envoy-upstream-service-time)%"
                   "upstream_transport_failure_reason": "%UPSTREAM_TRANSPORT_FAILURE_REASON%"
+                  "x_service": "%REQ(X-SERVICE)%"
