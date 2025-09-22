@@ -1,22 +1,16 @@
-# Istio Telemetry configuration for JSON access logging
-# This enables access logging mesh-wide to match the observability from Envoy Gateway
-# 
-# Note: This only ENABLES access logging. The JSON format is configured via meshConfig
-# using either:
-#   1. ./setup-access-logging.sh (for existing Istio installations)
-#   2. ./istio-install-with-logging.sh (for new Istio installations)
-#
-# The JSON format matches gateway/observability/envoy-observability.yaml exactly:
-# timestamp, method, path, protocol, response_code, response_flags, bytes_received/sent,
-# duration, upstream_service_time, x_forwarded_for, user_agent, request_id, authority,
-# upstream_host/cluster, downstream_remote/local_address, route_name
-apiVersion: telemetry.istio.io/v1
+# Telemetry API for access logging - Modern Istio approach
+apiVersion: telemetry.istio.io/v1alpha1
 kind: Telemetry
 metadata:
-  name: istio-access-logging
-  namespace: istio-system
+  name: gateway-access-logging
+  namespace: default
 spec:
-  # Apply to all workloads in the mesh
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: istio-demo-gateway
   accessLogging:
   - providers:
     - name: envoy
+---
+# Optional: Custom format using EnvoyFilter (if needed)
+# This can be added later if the default format isn't sufficient
