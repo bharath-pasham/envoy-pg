@@ -7,7 +7,7 @@ metadata:
 spec:
   workloadSelector:
     labels:
-      istio: ingressgateway
+      gateway.networking.k8s.io/gateway-name: istio-demo-gateway
   configPatches:
   - applyTo: HTTP_FILTER
     match:
