@@ -10,7 +10,7 @@
 # timestamp, method, path, protocol, response_code, response_flags, bytes_received/sent,
 # duration, upstream_service_time, x_forwarded_for, user_agent, request_id, authority,
 # upstream_host/cluster, downstream_remote/local_address, route_name
-apiVersion: telemetry.istio.io/v1beta1
+apiVersion: telemetry.istio.io/v1
 kind: Telemetry
 metadata:
   name: istio-access-logging

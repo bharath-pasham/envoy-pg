@@ -7,10 +7,10 @@ metadata:
   name: access-logging-format
   namespace: istio-system
 spec:
-  # Apply to ingress gateway
+  # Apply to Gateway API proxy
   workloadSelector:
     labels:
-      istio: ingressgateway
+      gateway.networking.k8s.io/gateway-name: istio-demo-gateway
   configPatches:
   - applyTo: HTTP_FILTER
     match:
