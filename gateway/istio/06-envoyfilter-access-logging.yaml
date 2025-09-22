@@ -1,0 +1,113 @@
+# EnvoyFilter to replicate EnvoyProxy access logging configuration in Istio
+# This provides the exact same JSON format as gateway/observability/envoy-observability.yaml
+# Note: This is an advanced approach - prefer 05-telemetry.yaml + mesh config for most cases
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: access-logging-format
+  namespace: istio-system
+spec:
+  # Apply to ingress gateway
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: envoy.filters.network.http_connection_manager
+    patch:
+      operation: MERGE
+      value:
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          access_log:
+          # JSON formatted logs for structured logging (matches EnvoyProxy config)
+          - name: envoy.access_loggers.file
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+              path: "/dev/stdout"
+              format: |
+                {
+                  "timestamp": "%START_TIME%",
+                  "method": "%REQ(:METHOD)%",
+                  "path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+                  "protocol": "%PROTOCOL%",
+                  "response_code": "%RESPONSE_CODE%",
+                  "response_flags": "%RESPONSE_FLAGS%",
+                  "bytes_received": "%BYTES_RECEIVED%",
+                  "bytes_sent": "%BYTES_SENT%",
+                  "duration": "%DURATION%",
+                  "upstream_service_time": "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%",
+                  "x_forwarded_for": "%REQ(X-FORWARDED-FOR)%",
+                  "user_agent": "%REQ(USER-AGENT)%",
+                  "request_id": "%REQ(X-REQUEST-ID)%",
+                  "authority": "%REQ(:AUTHORITY)%",
+                  "upstream_host": "%UPSTREAM_HOST%",
+                  "upstream_cluster": "%UPSTREAM_CLUSTER%",
+                  "downstream_remote_address": "%DOWNSTREAM_REMOTE_ADDRESS%",
+                  "downstream_local_address": "%DOWNSTREAM_LOCAL_ADDRESS%",
+                  "route_name": "%ROUTE_NAME%"
+                }
+          # Human-readable logs for debugging (matches EnvoyProxy config)
+          - name: envoy.access_loggers.file
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+              path: "/dev/stderr"
+              format: |
+                [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%"
+                %RESPONSE_CODE% %RESPONSE_FLAGS% %BYTES_RECEIVED% %BYTES_SENT%
+                "%DOWNSTREAM_REMOTE_ADDRESS%" "%REQ(USER-AGENT)%" "%REQ(X-REQUEST-ID)%"
+                rt=%DURATION%ms uct=%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%ms
+---
+# EnvoyFilter for sidecar proxies (service-a, service-b)
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: sidecar-access-logging
+  namespace: default
+spec:
+  # Apply to all sidecars in default namespace
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: envoy.filters.network.http_connection_manager
+    patch:
+      operation: MERGE
+      value:
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          access_log:
+          - name: envoy.access_loggers.file
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+              path: "/dev/stdout"
+              format: |
+                {
+                  "timestamp": "%START_TIME%",
+                  "method": "%REQ(:METHOD)%",
+                  "path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+                  "protocol": "%PROTOCOL%",
+                  "response_code": "%RESPONSE_CODE%",
+                  "response_flags": "%RESPONSE_FLAGS%",
+                  "bytes_received": "%BYTES_RECEIVED%",
+                  "bytes_sent": "%BYTES_SENT%",
+                  "duration": "%DURATION%",
+                  "upstream_service_time": "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%",
+                  "x_forwarded_for": "%REQ(X-FORWARDED-FOR)%",
+                  "user_agent": "%REQ(USER-AGENT)%",
+                  "request_id": "%REQ(X-REQUEST-ID)%",
+                  "authority": "%REQ(:AUTHORITY)%",
+                  "upstream_host": "%UPSTREAM_HOST%",
+                  "upstream_cluster": "%UPSTREAM_CLUSTER%",
+                  "downstream_remote_address": "%DOWNSTREAM_REMOTE_ADDRESS%",
+                  "downstream_local_address": "%DOWNSTREAM_LOCAL_ADDRESS%",
+                  "route_name": "%ROUTE_NAME%"
+                }

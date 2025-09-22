@@ -58,7 +58,54 @@ data:
       evaluation_interval: 15s
     
     scrape_configs:
-    # Scrape Envoy Gateway metrics
+    # Scrape Istio Ingress Gateway metrics
+    - job_name: 'istio-gateway'
+      metrics_path: /stats/prometheus
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_istio]
+        action: keep
+        regex: ingressgateway
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: (.*)
+        replacement: ${1}:15020
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+    
+    # Scrape Istio sidecar metrics (optional)
+    - job_name: 'istio-sidecars'
+      metrics_path: /stats/prometheus
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - default
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_container_name]
+        action: keep
+        regex: istio-proxy
+      - source_labels: [__address__]
+        action: replace
+        regex: (.+):(?:\d+)
+        replacement: ${1}:15020
+        target_label: __address__
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+    
+    # Keep Envoy Gateway for backward compatibility (if still needed)
     - job_name: 'envoy-gateway'
       kubernetes_sd_configs:
       - role: pod
@@ -72,26 +119,6 @@ data:
       - source_labels: [__meta_kubernetes_pod_container_port_number]
         action: keep
         regex: "19001"
-      - source_labels: [__meta_kubernetes_pod_name]
-        target_label: pod
-      - source_labels: [__meta_kubernetes_namespace]
-        target_label: namespace
-    
-    # Scrape Envoy metrics from the exposed metrics port (19001)
-    - job_name: 'envoy-metrics'
-      metrics_path: /stats/prometheus
-      kubernetes_sd_configs:
-      - role: pod
-        namespaces:
-          names:
-          - envoy-gateway-system
-      relabel_configs:
-      - source_labels: [__meta_kubernetes_pod_label_gateway_envoyproxy_io_owning_gateway_name]
-        action: keep
-        regex: demo-gateway
-      - source_labels: [__meta_kubernetes_pod_container_port_name]
-        action: keep
-        regex: "metrics"
       - source_labels: [__meta_kubernetes_pod_name]
         target_label: pod
       - source_labels: [__meta_kubernetes_namespace]

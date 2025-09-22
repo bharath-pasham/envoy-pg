@@ -7,7 +7,7 @@ export let options = {
 };
 
 export default function () {
-  const baseUrl = 'http://localhost';
+  const baseUrl = 'http://localhost:8080';
   const headers = {
     'Host': 'api.demo.local',
   };
@@ -16,6 +16,12 @@ export default function () {
   let response1 = http.get(`${baseUrl}/api/service-a/hello`, { headers });
   check(response1, {
     'service-a hello status is 200': (r) => r.status === 200,
+  });
+
+   // Test service-a slow endpoint
+  let slowResponse = http.get(`${baseUrl}/api/service-a/slow`, { headers });
+  check(slowResponse, {
+    'service-a slow status is 200': (r) => r.status === 200,
   });
 
   // Test service-b hello endpoint
