@@ -22,6 +22,25 @@ spec:
           "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager"
           access_log:
           - name: envoy.access_loggers.file
+            filter:
+              and_filter:
+                filters:
+                - header_filter:
+                    header:
+                      name: "x-service"
+                      string_match:
+                        contains: "service-a"
+                - header_filter:
+                    header:
+                      name: "x-customer-tier"
+                      string_match:
+                        contains: "standard"
+                # Add more services here as needed:
+                # - header_filter:
+                #     header:
+                #       name: ":authority"
+                #       string_match:
+                #         contains: "service-b"
             typed_config:
               "@type": "type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog"
               path: /dev/stdout
