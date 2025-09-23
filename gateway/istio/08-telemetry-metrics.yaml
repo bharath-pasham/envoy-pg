@@ -1,0 +1,11 @@
+# Enable standard Istio request metrics
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: default-metrics
+  namespace: istio-system
+spec:
+  # Apply to all workloads in the mesh
+  metrics:
+  - providers:
+    - name: prometheus
