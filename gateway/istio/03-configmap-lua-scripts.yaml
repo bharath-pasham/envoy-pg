@@ -1,0 +1,8 @@
+# ConfigMap created from the tier-injector.lua file
+# Create with: kubectl create configmap lua-scripts --from-file=tier-injector.lua --namespace=default
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lua-scripts
+  namespace: default
+# Data will be populated from tier-injector.lua file when using kubectl create configmap

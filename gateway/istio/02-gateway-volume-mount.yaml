@@ -1,0 +1,15 @@
+# Strategic merge patch to add Lua scripts volume to istio-demo-gateway deployment
+# Apply with: kubectl patch deployment istio-demo-gateway-istio --patch-file 02-gateway-volume-mount.yaml --type strategic
+spec:
+  template:
+    spec:
+      volumes:
+      - name: lua-scripts
+        configMap:
+          name: lua-scripts
+      containers:
+      - name: istio-proxy
+        volumeMounts:
+        - name: lua-scripts
+          mountPath: /etc/lua-scripts
+          readOnly: true
