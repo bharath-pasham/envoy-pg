@@ -27,3 +27,5 @@ spec:
           source_codes:
             tier-injector:
               filename: "/etc/lua-scripts/tier-injector.lua"
+          inline_code: |
+            dofile("/etc/lua-scripts/tier-injector.lua")
