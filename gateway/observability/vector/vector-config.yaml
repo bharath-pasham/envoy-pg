@@ -1,0 +1,71 @@
+---
+# Vector ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: vector
+data:
+  vector.yaml: |
+    # Sources: Collect logs from Kubernetes pods
+    sources:
+      kubernetes_logs:
+        type: kubernetes_logs
+        extra_namespace_label_selector: "name!=kube-system,name!=vector,name!=observability"
+
+    # Transforms: Parse JSON logs and create metrics
+    transforms:
+      # Parse JSON logs
+      parse_json:
+        type: remap
+        inputs: ["kubernetes_logs"]
+        source: |
+          # Ensure message is a string and process if it looks like JSON
+          .message = to_string(.message) ?? ""
+          if starts_with(.message, "{") {
+            .parsed, err = parse_json(.message)
+            if err == null && is_object(.parsed) {
+              # Flatten the parsed JSON into the main event
+              . = merge!(., .parsed)
+            }
+          }
+
+      # Filter for istio-demo-gateway logs only
+      filter_gateway:
+        type: filter
+        inputs: ["parse_json"]
+        condition: |
+          exists(.kubernetes.pod_labels."gateway.networking.k8s.io/gateway-name") &&
+          .kubernetes.pod_labels."gateway.networking.k8s.io/gateway-name" == "istio-demo-gateway"
+
+      # Generate latency metrics
+      generate_latency_metrics:
+        type: log_to_metric
+        inputs: ["filter_gateway"]
+        metrics:
+          - type: histogram
+            name: istio_gateway_request_duration_ms
+            field: response_duration
+            tags:
+              service: "{{ x_service }}"
+              server_name: "{{ server_name }}"
+              request_uri: "{{ request_uri }}"
+              status_code: "{{ status_code }}"
+              method: "{{ request_command }}"
+            buckets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+
+    # Sinks: Expose metrics for Prometheus scraping
+    sinks:
+      # Prometheus metrics exporter
+      prometheus_metrics:
+        type: prometheus_exporter
+        inputs: ["generate_latency_metrics"]
+        address: "0.0.0.0:9598"
+        namespace: "vector"
+
+      # Optional: Keep logs for debugging (remove in production)
+      debug_logs:
+        type: console
+        inputs: ["filter_gateway"]
+        encoding:
+          codec: json

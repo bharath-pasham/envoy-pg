@@ -135,6 +135,26 @@ data:
       - source_labels: [__meta_kubernetes_endpoint_port_name]
         action: keep
         regex: 'metrics|http'
+
+    # Vector metrics for Istio Gateway latency
+    - job_name: 'vector-istio-gateway-metrics'
+      kubernetes_sd_configs:
+      - role: service
+        namespaces:
+          names:
+          - vector
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_label_app]
+        action: keep
+        regex: vector
+      - source_labels: [__meta_kubernetes_service_port_name]
+        action: keep
+        regex: metrics
+      - source_labels: [__meta_kubernetes_service_name]
+        target_label: job
+        replacement: vector-istio-gateway
+      metrics_path: /metrics
+      scrape_interval: 15s
 ---
 apiVersion: apps/v1
 kind: Deployment
