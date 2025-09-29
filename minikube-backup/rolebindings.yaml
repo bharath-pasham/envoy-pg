@@ -1,0 +1,342 @@
+apiVersion: v1
+items:
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"RoleBinding","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"controller","app.kubernetes.io/instance":"ingress-nginx","app.kubernetes.io/name":"ingress-nginx"},"name":"ingress-nginx","namespace":"ingress-nginx"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"Role","name":"ingress-nginx"},"subjects":[{"kind":"ServiceAccount","name":"ingress-nginx","namespace":"ingress-nginx"}]}
+    creationTimestamp: "2025-09-15T12:11:30Z"
+    labels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: ingress-nginx
+      app.kubernetes.io/name: ingress-nginx
+    name: ingress-nginx
+    namespace: ingress-nginx
+    resourceVersion: "525"
+    uid: 91577942-766a-472a-b523-844cbeda1838
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: ingress-nginx
+  subjects:
+  - kind: ServiceAccount
+    name: ingress-nginx
+    namespace: ingress-nginx
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"RoleBinding","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"admission-webhook","app.kubernetes.io/instance":"ingress-nginx","app.kubernetes.io/name":"ingress-nginx"},"name":"ingress-nginx-admission","namespace":"ingress-nginx"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"Role","name":"ingress-nginx-admission"},"subjects":[{"kind":"ServiceAccount","name":"ingress-nginx-admission","namespace":"ingress-nginx"}]}
+    creationTimestamp: "2025-09-15T12:11:30Z"
+    labels:
+      app.kubernetes.io/component: admission-webhook
+      app.kubernetes.io/instance: ingress-nginx
+      app.kubernetes.io/name: ingress-nginx
+    name: ingress-nginx-admission
+    namespace: ingress-nginx
+    resourceVersion: "526"
+    uid: be4e69c5-fa88-4d81-9426-1b8189e5911d
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: ingress-nginx-admission
+  subjects:
+  - kind: ServiceAccount
+    name: ingress-nginx-admission
+    namespace: ingress-nginx
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: "2025-09-21T20:19:43Z"
+    labels:
+      install.operator.istio.io/owning-resource: installed-state
+      install.operator.istio.io/owning-resource-namespace: istio-system
+      istio.io/rev: default
+      operator.istio.io/component: IngressGateways
+      operator.istio.io/managed: Reconcile
+      operator.istio.io/version: 1.22.3
+      release: istio
+    name: istio-ingressgateway-sds
+    namespace: istio-system
+    resourceVersion: "201324"
+    uid: 426443f9-5f87-473b-b513-a182da008e56
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: istio-ingressgateway-sds
+  subjects:
+  - kind: ServiceAccount
+    name: istio-ingressgateway-service-account
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: "2025-09-21T20:19:35Z"
+    labels:
+      app: istiod
+      install.operator.istio.io/owning-resource: installed-state
+      install.operator.istio.io/owning-resource-namespace: istio-system
+      istio.io/rev: default
+      operator.istio.io/component: Pilot
+      operator.istio.io/managed: Reconcile
+      operator.istio.io/version: 1.22.3
+      release: istio
+    name: istiod
+    namespace: istio-system
+    resourceVersion: "201259"
+    uid: 130bdea5-6a4f-41db-b9c7-bbf23b034595
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: istiod
+  subjects:
+  - kind: ServiceAccount
+    name: istiod
+    namespace: istio-system
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    name: kubeadm:bootstrap-signer-clusterinfo
+    namespace: kube-public
+    resourceVersion: "255"
+    uid: 9238db33-53f2-4910-8f79-95fdc42b4fab
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: kubeadm:bootstrap-signer-clusterinfo
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: system:anonymous
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      rbac.authorization.kubernetes.io/autoupdate: "true"
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    labels:
+      kubernetes.io/bootstrapping: rbac-defaults
+    name: system:controller:bootstrap-signer
+    namespace: kube-public
+    resourceVersion: "232"
+    uid: dc3ffb9e-12e5-4827-a6af-8b80de281017
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: system:controller:bootstrap-signer
+  subjects:
+  - kind: ServiceAccount
+    name: bootstrap-signer
+    namespace: kube-system
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: "2025-09-15T12:09:18Z"
+    name: kube-proxy
+    namespace: kube-system
+    resourceVersion: "292"
+    uid: 2ae6f551-b82f-4f51-af5f-f6cc0948b2ef
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: kube-proxy
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: system:bootstrappers:kubeadm:default-node-token
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    name: kubeadm:kubelet-config
+    namespace: kube-system
+    resourceVersion: "244"
+    uid: 84102ef4-29d1-4820-a374-f21b52b3f5a8
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: kubeadm:kubelet-config
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: system:nodes
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: system:bootstrappers:kubeadm:default-node-token
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    name: kubeadm:nodes-kubeadm-config
+    namespace: kube-system
+    resourceVersion: "241"
+    uid: 45a3d423-0358-4c93-9e6d-19caf59bc6a2
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: kubeadm:nodes-kubeadm-config
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: system:bootstrappers:kubeadm:default-node-token
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: system:nodes
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      rbac.authorization.kubernetes.io/autoupdate: "true"
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    labels:
+      kubernetes.io/bootstrapping: rbac-defaults
+    name: system::extension-apiserver-authentication-reader
+    namespace: kube-system
+    resourceVersion: "226"
+    uid: b8ed3df1-68df-4f30-b6d0-cac09cded231
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: extension-apiserver-authentication-reader
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: system:kube-controller-manager
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: system:kube-scheduler
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      rbac.authorization.kubernetes.io/autoupdate: "true"
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    labels:
+      kubernetes.io/bootstrapping: rbac-defaults
+    name: system::leader-locking-kube-controller-manager
+    namespace: kube-system
+    resourceVersion: "227"
+    uid: bc73917e-3a0e-46f9-bd01-5eb4f45b8b5b
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: system::leader-locking-kube-controller-manager
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: system:kube-controller-manager
+  - kind: ServiceAccount
+    name: kube-controller-manager
+    namespace: kube-system
+  - kind: ServiceAccount
+    name: leader-election-controller
+    namespace: kube-system
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      rbac.authorization.kubernetes.io/autoupdate: "true"
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    labels:
+      kubernetes.io/bootstrapping: rbac-defaults
+    name: system::leader-locking-kube-scheduler
+    namespace: kube-system
+    resourceVersion: "228"
+    uid: 9c9579b3-da91-41f6-924e-1e59f629249b
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: system::leader-locking-kube-scheduler
+  subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: system:kube-scheduler
+  - kind: ServiceAccount
+    name: kube-scheduler
+    namespace: kube-system
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      rbac.authorization.kubernetes.io/autoupdate: "true"
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    labels:
+      kubernetes.io/bootstrapping: rbac-defaults
+    name: system:controller:bootstrap-signer
+    namespace: kube-system
+    resourceVersion: "229"
+    uid: 7d519969-ac09-4dd5-91a4-019412b3b08b
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: system:controller:bootstrap-signer
+  subjects:
+  - kind: ServiceAccount
+    name: bootstrap-signer
+    namespace: kube-system
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      rbac.authorization.kubernetes.io/autoupdate: "true"
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    labels:
+      kubernetes.io/bootstrapping: rbac-defaults
+    name: system:controller:cloud-provider
+    namespace: kube-system
+    resourceVersion: "230"
+    uid: 87b1e88a-42c0-4d1e-a878-24f98edfa968
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: system:controller:cloud-provider
+  subjects:
+  - kind: ServiceAccount
+    name: cloud-provider
+    namespace: kube-system
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      rbac.authorization.kubernetes.io/autoupdate: "true"
+    creationTimestamp: "2025-09-15T12:09:17Z"
+    labels:
+      kubernetes.io/bootstrapping: rbac-defaults
+    name: system:controller:token-cleaner
+    namespace: kube-system
+    resourceVersion: "231"
+    uid: 15d13276-a533-4aa9-90d4-d9fd523a3b82
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: system:controller:token-cleaner
+  subjects:
+  - kind: ServiceAccount
+    name: token-cleaner
+    namespace: kube-system
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"RoleBinding","metadata":{"annotations":{},"labels":{"addonmanager.kubernetes.io/mode":"EnsureExists"},"name":"system:persistent-volume-provisioner","namespace":"kube-system"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"Role","name":"system:persistent-volume-provisioner"},"subjects":[{"kind":"ServiceAccount","name":"storage-provisioner","namespace":"kube-system"}]}
+    creationTimestamp: "2025-09-15T12:09:19Z"
+    labels:
+      addonmanager.kubernetes.io/mode: EnsureExists
+    name: system:persistent-volume-provisioner
+    namespace: kube-system
+    resourceVersion: "309"
+    uid: 00c21c6b-3a03-449b-a6ec-988fef65cf74
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: system:persistent-volume-provisioner
+  subjects:
+  - kind: ServiceAccount
+    name: storage-provisioner
+    namespace: kube-system
+kind: List
+metadata:
+  resourceVersion: ""
